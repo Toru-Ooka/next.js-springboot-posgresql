@@ -1,45 +1,75 @@
+# Docker Composeファイルのバージョンを指定
+# バージョン3.8はDocker Composeの機能セットを定義
 version: "3.8"
 
+# サービス（services）の定義
+# 各サービスは1つのコンテナとして動作
 services:
+  # データベースサービス
   database:
+    # backend/dbディレクトリのDockerfileを使用してビルド
     build: ./backend/db
+    # ポートマッピング: ホスト:コンテナ
+    # ホストの5432ポートをコンテナの5432ポートに転送
     ports:
       - "5432:5432"
+    # 環境変数（environment variables）の設定
+    # PostgreSQLの設定情報
     environment:
       - POSTGRES_DB=backend_db
       - POSTGRES_USER=backend_user
       - POSTGRES_PASSWORD=backend_password
+    # ボリューム（volumes）マウント
+    # データベースのデータを永続化（persist）するための仕組み
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    # ネットワークに接続
     networks:
       - app-network
 
+  # バックエンドサービス（Spring Boot）
   backend:
+    # backendディレクトリのDockerfileを使用してビルド
     build: ./backend
+    # ホストの8080ポートをコンテナの8080ポートに転送
     ports:
       - "8080:8080"
+    # Spring Bootアプリケーションの環境変数
     environment:
+      # 本番環境プロファイルを有効化
       - SPRING_PROFILES_ACTIVE=prod
+      # データベース接続URL（databaseはサービス名で名前解決される）
       - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/backend_db
       - SPRING_DATASOURCE_USERNAME=backend_user
       - SPRING_DATASOURCE_PASSWORD=backend_password
+    # 依存関係（dependencies）の設定
+    # databaseサービスが起動してからbackendを起動
     depends_on:
       - database
     networks:
       - app-network
 
+  # フロントエンドサービス（Next.js）
   frontend:
+    # frontendディレクトリのDockerfileを使用してビルド
     build: ./frontend
+    # ホストの3000ポートをコンテナの3000ポートに転送
     ports:
       - "3000:3000"
+    # backendサービスが起動してからfrontendを起動
     depends_on:
       - backend
     networks:
       - app-network
 
+# 名前付きボリューム（named volumes）の定義
+# データベースのデータを永続化するために使用
 volumes:
   postgres_data:
 
+# ネットワーク（networks）の定義
+# コンテナ間の通信を可能にする仮想ネットワーク
 networks:
   app-network:
+    # ブリッジドライバー: 同一ホスト上のコンテナ間通信用
     driver: bridge
