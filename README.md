@@ -63,10 +63,22 @@ docker-compose down -v
 データベースには以下のサンプルデータが挿入されています：
 - usersテーブルに3つのサンプルユーザー（admin, user1, user2）
 
-データベースに直接接続して確認する場合：
+データベースに接続してデータを確認：
 ```bash
-docker exec -it $(docker-compose ps -q database) psql -U backend_user -d backend_db -c "SELECT * FROM users;"
+# PostgreSQLのpsqlコマンドでデータベースに接続
+psql -h localhost -p 5432 -U backend_user -d backend_db
 ```
+
+接続後、以下のSQLコマンドでデータを確認：
+```sql
+-- usersテーブルの全データを表示
+SELECT * FROM users;
+
+-- 接続を終了
+\q
+```
+
+パスワードを求められた場合は `backend_password` を入力してください。
 
 ## 開発時のコマンド
 
