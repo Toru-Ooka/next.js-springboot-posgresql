@@ -5,11 +5,6 @@
 - **Frontend**: Next.js (ポート: 3000)
 - **Database**: PostgreSQL (ポート: 5432)
 
-## 前提条件
-
-- Docker
-- Docker Compose
-
 ## 起動方法
 
 ### 1. 全サービスを一括起動
@@ -54,6 +49,23 @@ docker-compose down
 
 # データも削除する場合
 docker-compose down -v
+```
+
+## 動作確認
+
+### Backend
+ブラウザで http://localhost:8080/ にアクセスして「Hello World」が表示されれば正常に動作しています。
+
+### Frontend
+ブラウザで http://localhost:3000 にアクセスしてNext.jsのページが表示されれば正常に動作しています。
+
+### Database
+データベースには以下のサンプルデータが挿入されています：
+- usersテーブルに3つのサンプルユーザー（admin, user1, user2）
+
+データベースに直接接続して確認する場合：
+```bash
+docker exec -it $(docker-compose ps -q database) psql -U backend_user -d backend_db -c "SELECT * FROM users;"
 ```
 
 ## 開発時のコマンド
